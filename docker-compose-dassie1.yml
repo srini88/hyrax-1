@@ -7,7 +7,7 @@ services:
         - EXTRA_APK_PACKAGES=git less
         - BUNDLE_GEMFILE=Gemfile.dassie
     image: ghcr.io/samvera/hyrax-dev:${GITHUB_SHA:-latest}
-    command: sh -c 'bundle check || bundle install && bundle exec puma -v -b tcp://0.0.0.0:3000'
+    command: sh -c 'bundle exec puma -v -b tcp://0.0.0.0:3000'
     stdin_open: true
     tty: true
     user: root
@@ -15,8 +15,8 @@ services:
       - .dassie/.env
     environment:
       - RAILS_ROOT=/app/samvera/hyrax-webapp
-      - BUNDLE_PATH=/usr/local/bundle
     depends_on:
+      - worker
       - chrome
       - fcrepo
       - fits
@@ -28,9 +28,10 @@ services:
       - 3000:3000
       - 9876:9876
     volumes:
+      - ./bin:/app/samvera
       - .dassie:/app/samvera/hyrax-webapp
       - .:/app/samvera/hyrax-engine
-      - bundle:/usr/local/bundle
+      - bundle:/app/bundle
       - clamav:/var/lib/clamav
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
@@ -47,31 +48,23 @@ services:
         - EXTRA_APK_PACKAGES=git less
         - BUNDLE_GEMFILE=Gemfile.dassie
     image: ghcr.io/samvera/hyrax-dev:${GITHUB_SHA:-latest}
-    command: sh -c 'bundle check || bundle install && bundle exec sidekiq'
+    entrypoint: /app/samvera/worker-entrypoint.sh
+    command: sh -c 'bundle exec sidekiq'
     user: root
     env_file:
       - .dassie/.env
-    environment:
-      - BUNDLE_PATH=/usr/local/bundle
     depends_on:
-      web:
-        condition: service_started
-      fcrepo:
-        condition: service_started
-      fits:
-        condition: service_started
-      memcached:
-        condition: service_started
-      postgres:
-        condition: service_started
-      redis:
-        condition: service_started
-      solr:
-        condition: service_started
+      - fcrepo
+      - fits
+      - memcached
+      - postgres
+      - redis
+      - solr
     volumes:
+      - ./bin:/app/samvera
       - .dassie:/app/samvera/hyrax-webapp
       - .:/app/samvera/hyrax-engine
-      - bundle:/usr/local/bundle
+      - bundle:/app/bundle
       - clamav:/var/lib/clamav
       - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
       - hyrax-uploads:/app/samvera/hyrax-webapp/uploads

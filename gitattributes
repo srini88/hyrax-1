@@ -1,0 +1,28 @@
+# Ensure shell scripts always use LF (Unix) line endings, never CRLF (Windows)
+*.sh text eol=lf
+bin/* text eol=lf
+
+# Docker and docker-compose files should also use LF
+Dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+*.dockerfile text eol=lf
+
+# Ruby files
+*.rb text eol=lf
+Gemfile text eol=lf
+Rakefile text eol=lf
+
+# YAML files
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# General text files
+*.txt text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+
+# Ensure specific files in bin/ are treated as text with LF
+bin/dev-entrypoint.sh text eol=lf
+bin/worker-entrypoint.sh text eol=lf
+bin/db-migrate-seed.sh text eol=lf
+bin/hyrax-entrypoint.sh text eol=lf
